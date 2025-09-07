@@ -1,5 +1,4 @@
-"use client"; // Required for client-side hooks in Next.js App Router
-
+"use client";
 import React from "react";
 import { Film, Search, Heart, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { logout } from "@/store/slices/authSlice";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useRouter, usePathname } from "next/navigation";
 
 interface User {
@@ -20,14 +19,14 @@ interface AuthState {
     user: User | null;
   };
   watchlist: {
-    movies: Array<{ imdbID: string }>; 
+    movies: Array<{ imdbID: string }>;
   };
 }
 
 const Header: React.FC = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const pathname = usePathname(); 
+  const pathname = usePathname();
   const user = useAppSelector((state: AuthState) => state.auth.user);
   const watchlistCount = useAppSelector(
     (state: AuthState) => state.watchlist.movies.length
@@ -38,16 +37,10 @@ const Header: React.FC = () => {
       await signOut(auth);
       dispatch(logout());
       router.push("/");
-      toast({
-        title: "Signed out",
-        description: "You've been signed out successfully.",
-      });
-    } catch (error: string | null | unknown) {
-      toast({
-        title: "Error",
-        description: "Failed to sign out. Please try again.",
-        variant: "destructive",
-      });
+      toast("You've been signed out successfully.");
+    } catch (error: unknown) {
+      console.log((error as Error).message);
+      toast("Failed to sign out. Please try again.");
     }
   };
 
@@ -74,7 +67,11 @@ const Header: React.FC = () => {
               <Button
                 variant={isActive("/") ? "default" : "ghost"}
                 onClick={() => router.push("/")}
-                className={isActive("/") ? "bg-[var(--cinema-purple)] cursor-pointer" : ""}
+                className={
+                  isActive("/")
+                    ? "bg-[var(--cinema-purple)] cursor-pointer"
+                    : ""
+                }
               >
                 <Search className="w-4 h-4 mr-2" />
                 Discover
@@ -83,7 +80,9 @@ const Header: React.FC = () => {
                 variant={isActive("/watchlist") ? "default" : "ghost"}
                 onClick={() => router.push("/watchlist")}
                 className={`relative ${
-                  isActive("/watchlist") ? "bg-[var(--cinema-purple)] cursor-pointer" : ""
+                  isActive("/watchlist")
+                    ? "bg-[var(--cinema-purple)] cursor-pointer"
+                    : ""
                 }`}
               >
                 <Heart className="w-4 h-4 mr-2" />
@@ -137,7 +136,9 @@ const Header: React.FC = () => {
               variant={isActive("/") ? "default" : "ghost"}
               size="sm"
               onClick={() => router.push("/")}
-              className={isActive("/") ? "bg-[var(--cinema-purple)] cursor-pointer" : ""}
+              className={
+                isActive("/") ? "bg-[var(--cinema-purple)] cursor-pointer" : ""
+              }
             >
               <Search className="w-4 h-4 mr-2" />
               Discover
@@ -147,7 +148,9 @@ const Header: React.FC = () => {
               size="sm"
               onClick={() => router.push("/watchlist")}
               className={`relative ${
-                isActive("/watchlist") ? "bg-[var(--cinema-purple)] cursor-pointer" : ""
+                isActive("/watchlist")
+                  ? "bg-[var(--cinema-purple)] cursor-pointer"
+                  : ""
               }`}
             >
               <Heart className="w-4 h-4 mr-2" />

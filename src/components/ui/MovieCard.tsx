@@ -1,13 +1,16 @@
-import React from 'react'
-import { useState } from 'react';
-import { Heart, Eye, Calendar } from 'lucide-react';
-import { Movie } from '@/store/api/movieApi';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { addToWatchlist, removeFromWatchlist } from '@/store/slices/watchlistSlice';
-import { toast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
+import React from "react";
+import { useState } from "react";
+import { Heart, Eye, Calendar } from "lucide-react";
+import { Movie } from "@/store/api/movieApi";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import {
+  addToWatchlist,
+  removeFromWatchlist,
+} from "@/store/slices/watchlistSlice";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface MovieCardProps {
   movie: Movie;
@@ -18,23 +21,17 @@ const MovieCard = ({ movie }: MovieCardProps) => {
   const router = useRouter();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
-  
-  const watchlist = useAppSelector(state => state.watchlist.movies);
-  const isInWatchlist = watchlist.some(item => item.imdbID === movie.imdbID);
+
+  const watchlist = useAppSelector((state) => state.watchlist.movies);
+  const isInWatchlist = watchlist.some((item) => item.imdbID === movie.imdbID);
 
   const handleWatchlistToggle = () => {
     if (isInWatchlist) {
       dispatch(removeFromWatchlist(movie.imdbID));
-      toast({
-        title: "Removed from watchlist",
-        description: `${movie.Title} has been removed from your watchlist.`,
-      });
+      toast(`${movie.Title} has been removed from your watchlist.`);
     } else {
       dispatch(addToWatchlist(movie));
-      toast({
-        title: "Added to watchlist",
-        description: `${movie.Title} has been added to your watchlist.`,
-      });
+      toast(`${movie.Title} has been added to your watchlist.`);
     }
   };
 
@@ -43,15 +40,15 @@ const MovieCard = ({ movie }: MovieCardProps) => {
   };
 
   return (
-    <Card className="group relative overflow-hidden bg-gradient-card border-cinema-border hover:shadow-hover transition-all duration-300 transform hover:scale-[1.02] animate-fadeIn">
+    <Card className="group relative overflow-hidden bg-gradient-card border-[var(--cinema-border)] hover:shadow-hover transition-all duration-300 transform hover:scale-[1.02] animate-fadeIn">
       <CardContent className="p-0">
         <div className="relative aspect-[2/3] overflow-hidden">
-          {!imageError && movie.Poster !== 'N/A' ? (
+          {!imageError && movie.Poster !== "N/A" ? (
             <img
               src={movie.Poster}
               alt={movie.Title}
               className={`w-full h-full object-cover transition-all duration-300 group-hover:scale-110 ${
-                imageLoaded ? 'opacity-100' : 'opacity-0'
+                imageLoaded ? "opacity-100" : "opacity-0"
               }`}
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageError(true)}
@@ -64,27 +61,29 @@ const MovieCard = ({ movie }: MovieCardProps) => {
               </div>
             </div>
           )}
-          
+
           {/* Overlay */}
           <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          
+
           {/* Watchlist button */}
           <Button
             variant="secondary"
             size="sm"
             className={`absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 ${
-              isInWatchlist ? 'bg-cinema-gold text-cinema-dark' : ''
+              isInWatchlist ? "bg-cinema-gold text-cinema-dark" : ""
             }`}
             onClick={(e) => {
               e.stopPropagation();
               handleWatchlistToggle();
             }}
           >
-            <Heart className={`w-4 h-4 ${isInWatchlist ? 'fill-current' : ''}`} />
+            <Heart
+              className={`w-4 h-4 ${isInWatchlist ? "fill-current" : ""}`}
+            />
           </Button>
         </div>
       </CardContent>
-      
+
       <CardFooter className="flex flex-col items-start p-4 space-y-3">
         <div className="w-full">
           <h3 className="font-semibold text-sm line-clamp-2 mb-1 group-hover:text-cinema-gold transition-colors">
@@ -95,7 +94,7 @@ const MovieCard = ({ movie }: MovieCardProps) => {
             {movie.Year}
           </p>
         </div>
-        
+
         <Button
           variant="outline"
           size="sm"
@@ -107,7 +106,7 @@ const MovieCard = ({ movie }: MovieCardProps) => {
         </Button>
       </CardFooter>
     </Card>
-  )
-}
+  );
+};
 
-export default MovieCard
+export default MovieCard;

@@ -6,7 +6,6 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   UserCredential,
-  User,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
@@ -23,17 +22,16 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAppDispatch } from "@/hooks/redux";
 import { setUser, setLoading, setError } from "@/store/slices/authSlice";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Mail, Lock, Film, LogIn } from "lucide-react";
 
-// Define types for Redux state (adjust based on your authSlice)
-interface AuthState {
-  auth: {
-    user: User | null;
-    loading: boolean;
-    error: string | null;
-  };
-}
+// interface AuthState {
+//   auth: {
+//     user: User | null;
+//     loading: boolean;
+//     error: string | null;
+//   };
+// }
 
 const AuthForm: React.FC = () => {
   const [email, setEmail] = useState<string>("");
@@ -47,11 +45,7 @@ const AuthForm: React.FC = () => {
   ): Promise<void> => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Passwords don't match.",
-        variant: "destructive",
-      });
+      toast("Passwords don't match.");
       return;
     }
 
@@ -62,17 +56,11 @@ const AuthForm: React.FC = () => {
       const userCredential: UserCredential =
         await createUserWithEmailAndPassword(auth, email, password);
       dispatch(setUser(userCredential.user));
-      toast({
-        title: "Welcome!",
-        description: "Your account has been created successfully.",
-      });
-    } catch (error: string | null | unknown) {
-      dispatch(setError(error));
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast("Your account has been created successfully.");
+    } catch (error: unknown) {
+      console.log((error as Error).message);
+      dispatch(setError("unable to create account"));
+      toast("unable to create account");
     } finally {
       setIsLoading(false);
       dispatch(setLoading(false));
@@ -93,17 +81,11 @@ const AuthForm: React.FC = () => {
         password
       );
       dispatch(setUser(userCredential.user));
-      toast({
-        title: "Welcome back!",
-        description: "You've been signed in successfully.",
-      });
-    } catch (error: string | null | unknown) {
-      dispatch(setError(error));
-      toast({
-        title: "Error",
-        description: error,
-        variant: "destructive",
-      });
+      toast("You've been signed in successfully.");
+    } catch (error: unknown) {
+      console.log((error as Error).message);
+      dispatch(setError("unable to sign in"));
+      toast("unable to sign in");
     } finally {
       setIsLoading(false);
       dispatch(setLoading(false));
@@ -121,17 +103,11 @@ const AuthForm: React.FC = () => {
         provider
       );
       dispatch(setUser(userCredential.user));
-      toast({
-        title: "Welcome!",
-        description: "You've signed in with Google successfully.",
-      });
-    } catch (error: string | null | unknown) {
-      dispatch(setError(error));
-      toast({
-        title: "Error",
-        description: error,
-        variant: "destructive",
-      });
+      toast("You've signed in with Google successfully.");
+    } catch (error: unknown) {
+      console.log((error as Error).message);
+      dispatch(setError("unable to sign in with Google"));
+      toast("unable to sign in with Google");
     } finally {
       setIsLoading(false);
       dispatch(setLoading(false));
@@ -173,7 +149,10 @@ const AuthForm: React.FC = () => {
             </TabsList>
 
             <TabsContent value="signin" className="space-y-4 mt-6">
-              <form onSubmit={handleSignIn} className="space-y-4">
+              <form
+                onSubmit={handleSignIn}
+                className="space-y-4 flex flex-col gap-3"
+              >
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <div className="relative">

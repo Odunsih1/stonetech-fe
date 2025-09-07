@@ -1,6 +1,6 @@
 "use client";
-import React from "react";
-import { useState, useEffect, useMemo } from "react";
+
+import React, { useMemo, useState } from "react";
 import { Search, Filter, SortAsc, Film, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,17 +19,40 @@ import MovieCard from "@/components/ui/MovieCard";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useRouter } from "next/navigation";
 
+// Define types for Redux state
+interface AuthState {
+  auth: {
+    user: { uid: string; email: string | null } | null;
+  };
+}
+
+// Define types from movieApi
+// interface Movie {
+//   imdbID: string;
+//   Title: string;
+//   Year: string;
+//   Type: string;
+//   Poster: string;
+// }
+
+// interface SearchResponse {
+//   Search: Movie[];
+//   totalResults: string;
+//   Response: string;
+//   Error?: string;
+// }
+
 const CURRENT_YEAR = new Date().getFullYear();
 const YEARS = Array.from({ length: 50 }, (_, i) => CURRENT_YEAR - i);
 
-const Landing = () => {
+const Landing: React.FC = () => {
   const router = useRouter();
-  const user = useAppSelector((state) => state.auth.user);
+  const user = useAppSelector((state: AuthState) => state.auth.user);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedYear, setSelectedYear] = useState("");
-  const [selectedType, setSelectedType] = useState("");
-  const [sortBy, setSortBy] = useState("relevance");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedYear, setSelectedYear] = useState<string>("");
+  const [selectedType, setSelectedType] = useState<string>("");
+  const [sortBy, setSortBy] = useState<string>("relevance");
 
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
@@ -43,18 +66,29 @@ const Landing = () => {
     type: selectedType === "all" ? "" : selectedType,
   });
 
+  // Remove duplicates from searchResults.Search
   const sortedMovies = useMemo(() => {
     if (!searchResults?.Search) return [];
 
-    const movies = [...searchResults.Search];
+    // Filter out duplicates by imdbID
+    const uniqueMovies = Array.from(
+      new Map(
+        searchResults.Search.map((movie) => [movie.imdbID, movie])
+      ).values()
+    );
+
+    // Log for debugging
+    if (searchResults?.Search.length !== uniqueMovies.length) {
+      console.warn("Duplicate movies found:", searchResults.Search);
+    }
 
     switch (sortBy) {
       case "title":
-        return movies.sort((a, b) => a.Title.localeCompare(b.Title));
+        return uniqueMovies.sort((a, b) => a.Title.localeCompare(b.Title));
       case "year":
-        return movies.sort((a, b) => parseInt(b.Year) - parseInt(a.Year));
+        return uniqueMovies.sort((a, b) => parseInt(b.Year) - parseInt(a.Year));
       default:
-        return movies;
+        return uniqueMovies;
     }
   }, [searchResults, sortBy]);
 
@@ -88,7 +122,7 @@ const Landing = () => {
       {/* Hero Section */}
       <div className="text-center mb-12 animate-fadeIn">
         <div className="flex justify-center mb-6">
-          <div className="p-4 rounded-full bg-[var(--gradient-button)] bg-gradient-button shadow-[var(--glow)]">
+          <div className="p-4 rounded-full bg-gradient-button shadow-glow">
             <Sparkles className="w-12 h-12 text-white" />
           </div>
         </div>
@@ -103,7 +137,7 @@ const Landing = () => {
         {!user && (
           <Button
             onClick={() => router.push("/auth")}
-            className="bg-[var(--gradient-button)] bg-gradient-button hover:opacity-90 text-lg cursor-pointer px-8 py-3 h-auto"
+            className="bg-gradient-button hover:opacity-90 text-lg cursor-pointer px-8 py-3 h-auto text-white"
           >
             <Film className="w-5 h-5 mr-2" />
             Get Started
@@ -112,7 +146,7 @@ const Landing = () => {
       </div>
 
       {/* Search & Filters */}
-      <Card className="mb-8 bg-[var(--gradient-card)] bg-gradient-card border-[var(--cinema-border)] shadow-[var(--card)]">
+      <Card className="mb-8 bg-gradient-card border-[var(--cinema-border)] shadow-[var(--shadow-card)]">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Search className="w-5 h-5" />
@@ -196,26 +230,29 @@ const Landing = () => {
       {isLoading && <LoadingSkeleton />}
 
       {error && (
-        <Card className="text-center py-16 bg-[var(--gradient-card)] bg-gradient-card border-[var(--cinema-border)]">
+        <Card className="text-center py-16 bg-gradient-card border-[var(--cinema-border)]">
           <CardContent>
             <Film className="w-16 h-16 mx-auto text-[var(--muted-foreground)] mb-4" />
             <h2 className="text-2xl font-semibold mb-2">
               Something went wrong
             </h2>
             <p className="text-[var(--muted-foreground)]">
-              Please check your connection and try again.
+              {error instanceof Error
+                ? error.message
+                : JSON.stringify(error, null, 2)}
             </p>
           </CardContent>
         </Card>
       )}
 
       {searchResults && searchResults.Response === "False" && (
-        <Card className="text-center py-16 bg-[var(--gradient-card)] border-[var(--cinema-border)]">
+        <Card className="text-center py-16 bg-gradient-card border-[var(--cinema-border)]">
           <CardContent>
             <Search className="w-16 h-16 mx-auto text-[var(--muted-foreground)] mb-4" />
             <h2 className="text-2xl font-semibold mb-2">No results found</h2>
             <p className="text-[var(--muted-foreground)]">
-              Try adjusting your search terms or filters.
+              {searchResults.Error ||
+                "Try adjusting your search terms or filters."}
             </p>
           </CardContent>
         </Card>
@@ -231,8 +268,8 @@ const Landing = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {sortedMovies.map((movie) => (
-              <MovieCard key={movie.imdbID} movie={movie} />
+            {sortedMovies.map((movie, index) => (
+              <MovieCard key={`${movie.imdbID}-${index}`} movie={movie} />
             ))}
           </div>
         </div>
