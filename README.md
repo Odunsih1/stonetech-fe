@@ -8,7 +8,7 @@ BoxMovie is a modern movie discovery and watchlist management application built 
 - **Movie Details**: View comprehensive movie details (title, plot, director, actors, etc.) on a dynamic route (`/movie/[id]`)
 - **Watchlist Management**: Add, remove, and reorder movies in a user-specific watchlist, persisted in Firebase Firestore
 - **Protected Routes**: The watchlist page (`/watchlist`) is accessible only to authenticated users
-- **Drag-and-Drop**: Reorder watchlist items using react-beautiful-dnd
+- **Drag-and-Drop**: Reorder watchlist items using dnd-kit
 - **Responsive Design**: Mobile-friendly UI with custom Tailwind CSS gradients (`bg-gradient-card`, `gradient-text`)
 - **Authentication**: Firebase Authentication with email/password sign-in, sign-up, and email verification
 - **State Management**: Redux with RTK Query for API calls and redux-persist for local watchlist persistence
@@ -24,7 +24,7 @@ BoxMovie is a modern movie discovery and watchlist management application built 
 | **Backend** | Firebase Authentication, Firestore |
 | **API** | OMDB API for movie data |
 | **Styling** | Tailwind CSS, shadcn/ui, custom gradients |
-| **Libraries** | react-beautiful-dnd, lucide-react, sonner, next-themes |
+| **Libraries** | dnd-kit, lucide-react, sonner, next-themes |
 | **Build Tool** | Node.js |
 
 ## Prerequisites 
@@ -53,6 +53,9 @@ npm install
 ```json
 {
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@reduxjs/toolkit": "^2.0.0",
     "react-redux": "^9.0.0",
     "next": "15.5.2",
@@ -61,7 +64,6 @@ npm install
     "sonner": "^1.5.0",
     "next-themes": "^0.3.0",
     "redux-persist": "^6.0.0",
-    "react-beautiful-dnd": "^13.1.1",
     "@radix-ui/react-slot": "^1.0.2",
     "class-variance-authority": "^0.7.0",
     "tailwindcss-animate": "^1.0.7"
