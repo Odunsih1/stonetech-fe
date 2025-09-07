@@ -65,7 +65,7 @@ const Header: React.FC = () => {
             <div className="p-2 rounded-lg bg-gradient-button  group-hover:scale-110 transition-transform">
               <Film className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xl font-bold gradient-text">CineVault</span>
+            <span className="text-xl font-bold gradient-text">BoxMovie</span>
           </button>
 
           {/* Navigation Links */}
