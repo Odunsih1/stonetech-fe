@@ -1,13 +1,15 @@
 import React from "react";
 import { useRouter } from "next/navigation";
-import { Draggable } from "react-beautiful-dnd";
 import { Heart, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useGetMovieDetailsQuery } from "@/store/api/movieApi";
 import WatchlistItemSkeleton from "./WatchlistItemSkeleton";
 import WatchlistItemError from "./WatchlistItemError";
-import { WatchlistItem as WatchlistItemType } from "../../types/types";
+import { WatchlistItem as WatchlistItemType } from "@/types/types";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { DraggableSyntheticListeners } from "@dnd-kit/core";
 
 interface WatchlistItemProps {
   item: WatchlistItemType;
@@ -27,6 +29,16 @@ const WatchlistItem: React.FC<WatchlistItemProps> = ({
     error,
   } = useGetMovieDetailsQuery(item.imdbID);
 
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({
+      id: item.imdbID,
+    });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   const handleMovieClick = () => {
     if (movie) {
       router.push(`/movie/${movie.imdbID}`);
@@ -37,49 +49,42 @@ const WatchlistItem: React.FC<WatchlistItemProps> = ({
     return <WatchlistItemSkeleton />;
   }
 
-  if (error || !movie || movie.Response === "False") {
+  if (error || !movie) {
     return <WatchlistItemError onRemove={onRemove} />;
   }
 
   return (
-    <Draggable draggableId={item.imdbID} index={index}>
-      {(provided) => (
-        <Card
-          className="bg-gradient-card border-[var(--cinema-border)]"
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-        >
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <DragHandle dragHandleProps={provided.dragHandleProps} />
-
-              <div className="flex-1">
-                <MoviePoster
-                  poster={movie.Poster}
-                  title={movie.Title}
-                  onClick={handleMovieClick}
-                />
-
-                <MovieInfo
-                  title={movie.Title}
-                  year={movie.Year}
-                  type={movie.Type}
-                />
-
-                <RemoveButton onRemove={onRemove} />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-    </Draggable>
+    <Card
+      className="bg-gradient-card border-[var(--cinema-border)]"
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+    >
+      <CardContent className="p-4">
+        <div className="flex items-start gap-3">
+          <DragHandle dragHandleProps={listeners} />
+          <div className="flex-1">
+            <MoviePoster
+              poster={movie.Poster}
+              title={movie.Title}
+              onClick={handleMovieClick}
+            />
+            <MovieInfo
+              title={movie.Title}
+              year={movie.Year}
+              type={movie.Type}
+            />
+            <RemoveButton onRemove={onRemove} />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
-// Sub-components for better organization
-const DragHandle: React.FC<{ dragHandleProps: any }> = ({
-  dragHandleProps,
-}) => (
+const DragHandle: React.FC<{
+  dragHandleProps: DraggableSyntheticListeners | undefined;
+}> = ({ dragHandleProps }) => (
   <div {...dragHandleProps} className="pt-2">
     <GripVertical className="w-4 h-4 text-[var(--muted-foreground)] cursor-grab" />
   </div>

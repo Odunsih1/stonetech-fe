@@ -4,12 +4,14 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { setWatchlist } from "@/store/slices/watchlistSlice";
 import { User, WatchlistItem } from "../types/types";
+import { AppDispatch } from "@/store/store";
+
 
 
 export const useWatchlistSync = (
   user: User | null,
   watchlist: WatchlistItem[],
-  dispatch: (action: any) => void
+  dispatch: AppDispatch,
 ) => {
   useEffect(() => {
      if (user) {

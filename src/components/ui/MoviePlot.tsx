@@ -1,7 +1,7 @@
 import React from "react";
 
 interface MoviePlotProps {
-  plot: string;
+  plot?: string;
 }
 
 const MoviePlot: React.FC<MoviePlotProps> = ({ plot }) => (

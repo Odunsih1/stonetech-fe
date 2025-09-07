@@ -1,8 +1,5 @@
 import React from "react";
-
-interface MovieDetailsProps {
-  movie: any; 
-}
+import type { MovieDetailsProps } from "@/types/types";
 
 const MovieDetails: React.FC<MovieDetailsProps> = ({ movie }) => (
   <div>

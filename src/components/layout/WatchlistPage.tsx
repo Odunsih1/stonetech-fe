@@ -6,13 +6,22 @@ import { useAppSelector, useAppDispatch } from "@/hooks/redux";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { DragDropContext, DropResult } from "react-beautiful-dnd";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { reorderWatchlist } from "@/store/slices/watchlistSlice";
-import WatchlistHeader from ".././ui/WatchlistHeader";
-import EmptyWatchlist from ".././ui/EmptyWatchlist";
-import WatchlistGrid from ".././ui/WatchlistGrid";
-import { useWatchlistSync } from "../../hooks/useWatchlistSync";
-import { AuthState } from "../../types/types";
+import WatchlistHeader from "@/components/ui/WatchlistHeader";
+import EmptyWatchlist from "@/components/ui/EmptyWatchlist";
+import WatchlistGrid from "@/components/ui/WatchlistGrid";
+import { useWatchlistSync } from "@/hooks/useWatchlistSync";
+import { AuthState } from "@/types/types";
 
 const WatchlistPage: React.FC = () => {
   const router = useRouter();
@@ -36,19 +45,33 @@ const WatchlistPage: React.FC = () => {
   }, [user, router]);
 
   // Handle drag-and-drop reordering
-  const handleDragEnd = (result: DropResult) => {
-    if (!result.destination) return;
-    dispatch(
-      reorderWatchlist({
-        sourceIndex: result.source.index,
-        destinationIndex: result.destination.index,
-      })
-    );
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active.id !== over?.id) {
+      const oldIndex = watchlist.findIndex((item) => item.imdbID === active.id);
+      const newIndex = watchlist.findIndex((item) => item.imdbID === over?.id);
+      dispatch(
+        reorderWatchlist({
+          sourceIndex: oldIndex,
+          destinationIndex: newIndex,
+        })
+      );
+      toast.success("Watchlist reordered", {
+        description: "Your watchlist order has been updated.",
+      });
+    }
   };
 
   const handleBackToHome = () => router.push("/");
 
-  if (!user) return null; // Handled by useEffect redirect
+  if (!user) return null;
 
   if (watchlist.length === 0) {
     return (
@@ -62,17 +85,18 @@ const WatchlistPage: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <BackButton onClick={handleBackToHome} />
-
       <WatchlistHeader movieCount={watchlist.length} />
-
-      <DragDropContext onDragEnd={handleDragEnd}>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
         <WatchlistGrid watchlist={watchlist} dispatch={dispatch} />
-      </DragDropContext>
+      </DndContext>
     </div>
   );
 };
 
-// Back Button Component
 const BackButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
   <Button
     variant="ghost"

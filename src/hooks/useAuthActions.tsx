@@ -9,13 +9,14 @@ import {
 import { auth } from "@/lib/firebase";
 import * as authActions from "@/store/slices/authSlice";
 import { toast } from "sonner";
+import { AppDispatch } from "@/store/store";
 
 interface UseAuthActionsProps {
   email: string;
   password: string;
   confirmPassword: string;
   setLoading: (loading: boolean) => void;
-  dispatch: any;
+  dispatch: AppDispatch;
 }
 
 export const useAuthActions = ({

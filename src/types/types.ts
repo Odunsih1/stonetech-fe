@@ -5,6 +5,20 @@ export interface Movie {
   Year: string;
   Type: string;
   Poster: string;
+  Plot?: string;
+  Director?: string;
+  Actors?: string;
+  Genre?: string;
+  Runtime?: string;
+  imdbRating?: string;
+  Rated?: string;
+  Released?: string;
+  Writer?: string;
+  Language?: string;
+  Country?: string;
+  Awards?: string;
+  Response?: string;
+  Error?: string;
 }
 
 // Search Results interface
@@ -25,13 +39,15 @@ export interface User {
 export interface WatchlistItem {
   imdbID: string;
   order: number;
+  Response?: string;
+  Error?: string;
 }
 
 // Redux state interface
 export interface AuthState {
   auth: {
     user: User | null;
-     loading: boolean;
+    loading: boolean;
     error: string | null;
   };
   watchlist: {
@@ -76,7 +92,7 @@ export interface MoviePosterProps {
 }
 
 export interface MovieInfoProps {
-  movie: Movie[]; 
+  movie: Movie; 
   user: User | null;
   isInWatchlist: boolean;
   onWatchlistToggle: () => void;
@@ -88,4 +104,8 @@ export interface MovieHeaderProps {
   type: string;
   rated?: string;
   runtime?: string;
+}
+
+export interface MovieDetailsProps {
+  movie: Movie;
 }

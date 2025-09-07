@@ -2,7 +2,7 @@ import React from "react";
 import MoviePlot from "./MoviePlot";
 import MovieDetails from "./MovieDetails";
 import WatchlistButton from "./WatchlistButton";
-import type { MovieInfoProps } from "@/types/movieDetail.types";
+import type { MovieInfoProps } from "@/types/types";
 
 const MovieInfo: React.FC<MovieInfoProps> = ({
   movie,

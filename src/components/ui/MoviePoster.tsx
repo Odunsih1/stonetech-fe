@@ -1,5 +1,5 @@
 import React from "react";
-import type { MoviePosterProps } from "@/types/movieDetail.types";
+import type { MoviePosterProps } from "@/types/types";
 
 const MoviePoster: React.FC<MoviePosterProps> = ({ poster, title }) => (
   <div className="w-full md:w-1/3">

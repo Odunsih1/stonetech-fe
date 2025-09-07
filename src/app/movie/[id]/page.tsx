@@ -25,7 +25,7 @@ const MovieDetailPage: React.FC = () => {
   const { data: movie, isLoading, error } = useGetMovieDetailsQuery(id);
 
   const isInWatchlist = watchlist.some((item) => item.imdbID === id);
-  
+
   const { handleWatchlistToggle } = useWatchlistToggle({
     user,
     movieId: id,
@@ -43,11 +43,10 @@ const MovieDetailPage: React.FC = () => {
     );
   }
 
-  if (error || !movie || movie.Response === "False") {
-    const errorMessage = movie?.Error || 
-      JSON.stringify(error, null, 2) || 
-      "Failed to load movie details.";
-    
+  if (error || !movie) {
+    const errorMessage =
+      JSON.stringify(error, null, 2) || "Failed to load movie details.";
+
     toast.error("Error", {
       description: errorMessage,
     });
