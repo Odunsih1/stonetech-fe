@@ -17,7 +17,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Box Movie",
-  description: "",
+  description:
+    "Search through millions of movies, create your personal watchlist, and never miss a great film again.",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({
