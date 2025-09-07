@@ -1,3 +1,4 @@
+// src/lib/firebase.ts
 import { initializeApp } from "firebase/app";
 import {
   getAuth,
@@ -13,6 +14,7 @@ import {
   UserCredential,
   User,
 } from "firebase/auth";
+import { getFirestore } from "firebase/firestore"; // Import Firestore
 
 // Define the Firebase configuration type
 interface FirebaseConfig {
@@ -53,6 +55,7 @@ for (const key of requiredConfigKeys) {
 // Initialize Firebase app
 const app = initializeApp(firebaseConfig);
 export const auth: Auth = getAuth(app);
+export const db = getFirestore(app); // Export Firestore instance
 
 // Set session persistence
 setPersistence(auth, browserSessionPersistence).catch((error: Error) => {
@@ -80,7 +83,7 @@ export const signInWithEmailPassword = async (
       await sendEmailVerification(result.user);
     }
     return result.user;
-  } catch (error: string | null | unknown) {
+  } catch (error) {
     console.error("signInWithEmailPassword: Error:", error);
     throw error;
   }
@@ -95,7 +98,7 @@ export const signUpWithEmailPassword = async (
     const result: UserCredential = await createUserWithEmailAndPassword(auth, email, password);
     await sendEmailVerification(result.user);
     return result.user;
-  } catch (error: string | null | unknown) {
+  } catch (error) {
     console.error("signUpWithEmailPassword: Error:", error);
     throw error;
   }
@@ -105,7 +108,7 @@ export const signUpWithEmailPassword = async (
 export const sendPasswordReset = async (email: string): Promise<void> => {
   try {
     await sendPasswordResetEmail(auth, email);
-  } catch (error: string | null | unknown) {
+  } catch (error) {
     console.error("sendPasswordReset: Error:", error);
     throw error;
   }
@@ -115,7 +118,7 @@ export const sendPasswordReset = async (email: string): Promise<void> => {
 export const signOutUser = async (): Promise<void> => {
   try {
     await signOut(auth);
-  } catch (error: string | null | unknown) {
+  } catch (error) {
     console.error("signOutUser: Error:", error);
     throw error;
   }

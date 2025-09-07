@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { logout } from "@/store/slices/authSlice";
+import { clearWatchlist } from "@/store/slices/watchlistSlice";
 import { toast } from "sonner";
 import { useRouter, usePathname } from "next/navigation";
 
@@ -36,6 +37,7 @@ const Header: React.FC = () => {
     try {
       await signOut(auth);
       dispatch(logout());
+      dispatch(clearWatchlist());
       router.push("/");
       toast("You've been signed out successfully.");
     } catch (error: unknown) {

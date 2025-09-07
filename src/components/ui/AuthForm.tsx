@@ -1,286 +1,92 @@
 "use client";
-import React, { useState } from "react";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
-  UserCredential,
-} from "firebase/auth";
-import { auth } from "@/lib/firebase";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAppDispatch } from "@/hooks/redux";
-import { setUser, setLoading, setError } from "@/store/slices/authSlice";
-import { toast } from "sonner";
-import { Mail, Lock, Film, LogIn } from "lucide-react";
 
-// interface AuthState {
-//   auth: {
-//     user: User | null;
-//     loading: boolean;
-//     error: string | null;
-//   };
-// }
+import React, { useState } from "react";
+import { useAppDispatch } from "@/hooks/redux";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import AuthHeader from "./AuthHeader";
+import SignInForm from "./SignInForm";
+import SignUpForm from "./SignUpForm";
+import { useAuthActions } from "../../hooks/useAuthActions";
 
 const AuthForm: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [loading, setIsLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const dispatch = useAppDispatch();
 
-  const handleSignUp = async (
-    e: React.FormEvent<HTMLFormElement>
-  ): Promise<void> => {
-    e.preventDefault();
-    if (password !== confirmPassword) {
-      toast("Passwords don't match.");
-      return;
-    }
+  const { handleSignUp, handleSignIn, handleGoogleSignIn } = useAuthActions({
+    email,
+    password,
+    confirmPassword,
+    setLoading,
+    dispatch,
+  });
 
-    setIsLoading(true);
-    dispatch(setLoading(true));
-
-    try {
-      const userCredential: UserCredential =
-        await createUserWithEmailAndPassword(auth, email, password);
-      dispatch(setUser(userCredential.user));
-      toast("Your account has been created successfully.");
-    } catch (error: unknown) {
-      console.log((error as Error).message);
-      dispatch(setError("unable to create account"));
-      toast("unable to create account");
-    } finally {
-      setIsLoading(false);
-      dispatch(setLoading(false));
-    }
-  };
-
-  const handleSignIn = async (
-    e: React.FormEvent<HTMLFormElement>
-  ): Promise<void> => {
-    e.preventDefault();
-    setIsLoading(true);
-    dispatch(setLoading(true));
-
-    try {
-      const userCredential: UserCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      dispatch(setUser(userCredential.user));
-      toast("You've been signed in successfully.");
-    } catch (error: unknown) {
-      console.log((error as Error).message);
-      dispatch(setError("unable to sign in"));
-      toast("unable to sign in");
-    } finally {
-      setIsLoading(false);
-      dispatch(setLoading(false));
-    }
-  };
-
-  const handleGoogleSignIn = async (): Promise<void> => {
-    setIsLoading(true);
-    dispatch(setLoading(true));
-
-    try {
-      const provider = new GoogleAuthProvider();
-      const userCredential: UserCredential = await signInWithPopup(
-        auth,
-        provider
-      );
-      dispatch(setUser(userCredential.user));
-      toast("You've signed in with Google successfully.");
-    } catch (error: unknown) {
-      console.log((error as Error).message);
-      dispatch(setError("unable to sign in with Google"));
-      toast("unable to sign in with Google");
-    } finally {
-      setIsLoading(false);
-      dispatch(setLoading(false));
-    }
+  const authFormProps = {
+    email,
+    password,
+    confirmPassword,
+    loading,
+    setEmail,
+    setPassword,
+    setConfirmPassword,
+    onSignIn: handleSignIn,
+    onSignUp: handleSignUp,
+    onGoogleSignIn: handleGoogleSignIn,
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 gradient-hero">
       <Card className="w-full max-w-md bg-gradient-card border-[var(--cinema-border)] shadow-[var(--shadow-card)]">
-        <CardHeader className="text-center space-y-4">
-          <div className="flex justify-center">
-            <div className="p-3 rounded-full bg-gradient-button">
-              <Film className="w-8 h-8 text-white" />
-            </div>
-          </div>
-          <div>
-            <CardTitle className="text-2xl gradient-text">BoxMovie</CardTitle>
-            <CardDescription className="text-[var(--muted-foreground)]">
-              Your personal movie discovery platform
-            </CardDescription>
-          </div>
-        </CardHeader>
+        <AuthHeader />
 
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-[var(--cinema-card)]">
-              <TabsTrigger
-                value="signin"
-                className="data-[state=active]:bg-[var(--cinema-purple)] cursor-pointer data-[state=active]:text-white"
-              >
-                Sign In
-              </TabsTrigger>
-              <TabsTrigger
-                value="signup"
-                className="data-[state=active]:bg-[var(--cinema-purple)] cursor-pointer data-[state=active]:text-white"
-              >
-                Sign Up
-              </TabsTrigger>
-            </TabsList>
+            <AuthTabsList />
 
             <TabsContent value="signin" className="space-y-4 mt-6">
-              <form
-                onSubmit={handleSignIn}
-                className="space-y-4 flex flex-col gap-3"
-              >
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 w-4 h-4 text-[var(--muted-foreground)]" />
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 bg-[var(--cinema-card)] border-[var(--cinema-border)]"
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 w-4 h-4 text-[var(--muted-foreground)]" />
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10 bg-[var(--cinema-card)] border-[var(--cinema-border)]"
-                      required
-                    />
-                  </div>
-                </div>
-                <Button
-                  type="submit"
-                  className="w-full bg-gradient-button cursor-pointer hover:opacity-90 transition-opacity"
-                  disabled={loading}
-                >
-                  {loading ? "Signing In..." : "Sign In"}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full border-[var(--cinema-border)] hover:bg-[var(--cinema-purple)] hover:border-[var(--cinema-purple)]"
-                  onClick={handleGoogleSignIn}
-                  disabled={loading}
-                >
-                  <LogIn className="w-4 h-4 mr-2" />
-                  Sign In with Google
-                </Button>
-              </form>
+              <SignInForm {...authFormProps} />
             </TabsContent>
 
             <TabsContent value="signup" className="space-y-4 mt-6">
-              <form onSubmit={handleSignUp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 w-4 h-4 text-[var(--muted-foreground)]" />
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 bg-[var(--cinema-card)] border-[var(--cinema-border)]"
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password">Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 w-4 h-4 text-[var(--muted-foreground)]" />
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      placeholder="Create a password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10 bg-[var(--cinema-card)] border-[var(--cinema-border)]"
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="confirm-password">Confirm Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 w-4 h-4 text-[var(--muted-foreground)]" />
-                    <Input
-                      id="confirm-password"
-                      type="password"
-                      placeholder="Confirm your password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="pl-10 bg-[var(--cinema-card)] border-[var(--cinema-border)]"
-                      required
-                    />
-                  </div>
-                </div>
-                <Button
-                  type="submit"
-                  className="w-full bg-gradient-button cursor-pointer hover:opacity-90 transition-opacity"
-                  disabled={loading}
-                >
-                  {loading ? "Creating Account..." : "Sign Up"}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full border-[var(--cinema-border)] hover:bg-[var(--cinema-purple)] hover:border-[var(--cinema-purple)]"
-                  onClick={handleGoogleSignIn}
-                  disabled={loading}
-                >
-                  <LogIn className="w-4 h-4 mr-2" />
-                  Sign Up with Google
-                </Button>
-              </form>
+              <SignUpForm {...authFormProps} />
             </TabsContent>
           </Tabs>
         </CardContent>
 
-        <CardFooter className="justify-center">
-          <p className="text-xs text-[var(--muted-foreground)] text-center">
-            Join thousands of movie enthusiasts discovering their next favorite
-            film
-          </p>
-        </CardFooter>
+        <AuthFooter />
       </Card>
     </div>
   );
 };
+
+// Auth Tabs List Component
+const AuthTabsList: React.FC = () => (
+  <TabsList className="grid w-full grid-cols-2 bg-[var(--cinema-card)]">
+    <TabsTrigger
+      value="signin"
+      className="data-[state=active]:bg-[var(--cinema-purple)] cursor-pointer data-[state=active]:text-white"
+    >
+      Sign In
+    </TabsTrigger>
+    <TabsTrigger
+      value="signup"
+      className="data-[state=active]:bg-[var(--cinema-purple)] cursor-pointer data-[state=active]:text-white"
+    >
+      Sign Up
+    </TabsTrigger>
+  </TabsList>
+);
+
+// Auth Footer Component
+const AuthFooter: React.FC = () => (
+  <CardFooter className="justify-center">
+    <p className="text-xs text-[var(--muted-foreground)] text-center">
+      Join thousands of movie enthusiasts discovering their next favorite film
+    </p>
+  </CardFooter>
+);
 
 export default AuthForm;

@@ -16,16 +16,30 @@ interface MovieCardProps {
   movie: Movie;
 }
 
+interface AuthState {
+  auth: {
+    user: { uid: string; email: string | null } | null;
+  };
+  watchlist: {
+    movies: Array<{ imdbID: string }>;
+  };
+}
+
 const MovieCard = ({ movie }: MovieCardProps) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
-
+  const user = useAppSelector((state: AuthState) => state.auth.user);
   const watchlist = useAppSelector((state) => state.watchlist.movies);
   const isInWatchlist = watchlist.some((item) => item.imdbID === movie.imdbID);
 
   const handleWatchlistToggle = () => {
+    if (!user) {
+      toast("Error, Please sign in to manage your watchlist.");
+      router.push("/auth");
+      return;
+    }
     if (isInWatchlist) {
       dispatch(removeFromWatchlist(movie.imdbID));
       toast(`${movie.Title} has been removed from your watchlist.`);
@@ -36,7 +50,11 @@ const MovieCard = ({ movie }: MovieCardProps) => {
   };
 
   const handleViewDetails = () => {
-    router.push(`/movie/${movie.imdbID}`);
+    if (!user) {
+      toast("Error, Please sign in to view movie details.");
+      router.push("/auth");
+      return;
+    } else router.push(`/movie/${movie.imdbID}`);
   };
 
   return (
