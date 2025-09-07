@@ -2,7 +2,7 @@
 
 @layer base {
   :root {
-    /* Cinematic Dark Theme */
+    /* Cinematic Dark Theme (Default) */
     --background: hsl(220 15% 8%);
     --foreground: hsl(210 40% 98%);
     --card: hsl(220 15% 10%);
@@ -54,12 +54,61 @@
     --shadow-glow: 0 0 40px hsl(262 83% 58% / 0.3);
   }
 
+  /* Light Theme */
+  .light {
+    --background: hsl(0 0% 100%);
+    --foreground: hsl(220 15% 8%);
+    --card: hsl(0 0% 100%);
+    --card-foreground: hsl(220 15% 8%);
+    --popover: hsl(0 0% 100%);
+    --popover-foreground: hsl(220 15% 8%);
+    --primary: hsl(262 83% 58%);
+    --primary-foreground: hsl(0 0% 100%);
+    --secondary: hsl(210 40% 96%);
+    --secondary-foreground: hsl(220 15% 8%);
+    --muted: hsl(210 40% 96%);
+    --muted-foreground: hsl(215.4 16.3% 43.9%);
+    --accent: hsl(45 93% 47%);
+    --accent-foreground: hsl(0 0% 100%);
+    --destructive: hsl(0 84.2% 60.2%);
+    --destructive-foreground: hsl(0 0% 100%);
+    --border: hsl(214.3 31.8% 91.4%);
+    --input: hsl(214.3 31.8% 91.4%);
+    --ring: hsl(262 83% 58%);
+
+    /* Custom Cinema Colors for Light Mode */
+    --cinema-gold: hsl(45 93% 47%);
+    --cinema-purple: hsl(262 83% 58%);
+    --cinema-dark: hsl(0 0% 100%);
+    --cinema-card: hsl(0 0% 100%);
+    --cinema-border: hsl(214.3 31.8% 91.4%);
+
+    /* Light Mode Gradients */
+    --gradient-hero: linear-gradient(
+      135deg,
+      hsl(262 83% 58% / 0.05),
+      hsl(45 93% 47% / 0.05)
+    );
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(210 40% 98%));
+    --gradient-button: linear-gradient(
+      135deg,
+      hsl(262 83% 58%),
+      hsl(262 83% 48%)
+    );
+
+    /* Light Mode Shadows */
+    --shadow-card: 0 8px 32px hsl(220 15% 25% / 0.1);
+    --shadow-hover: 0 16px 64px hsl(262 83% 58% / 0.1);
+    --shadow-glow: 0 0 40px hsl(262 83% 58% / 0.15);
+  }
+
   body {
     background-color: var(--background);
     /* background-image: var(--gradient-hero); */
     background-attachment: fixed;
     color: var(--foreground);
     font-family: var(--font-geist-sans), sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   .gradient-hero {

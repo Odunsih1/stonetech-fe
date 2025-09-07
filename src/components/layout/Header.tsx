@@ -9,6 +9,7 @@ import { logout } from "@/store/slices/authSlice";
 import { clearWatchlist } from "@/store/slices/watchlistSlice";
 import { toast } from "sonner";
 import { useRouter, usePathname } from "next/navigation";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 interface User {
   email: string | null;
@@ -100,6 +101,9 @@ const Header: React.FC = () => {
 
           {/* User Actions */}
           <div className="flex items-center space-x-2">
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
             {user ? (
               <div className="flex items-center space-x-2">
                 <div className="hidden sm:flex items-center space-x-2 text-sm">

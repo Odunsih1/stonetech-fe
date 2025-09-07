@@ -44,9 +44,7 @@ const ErrorState: React.FC<{ error: unknown }> = ({ error }) => (
       <Film className="w-16 h-16 mx-auto text-[var(--muted-foreground)] mb-4" />
       <h2 className="text-2xl font-semibold mb-2">Something went wrong</h2>
       <p className="text-[var(--muted-foreground)]">
-        {error instanceof Error
-          ? error.message
-          : JSON.stringify(error, null, 2)}
+        Unable to fetch movie details. Please try again later.
       </p>
     </CardContent>
   </Card>
